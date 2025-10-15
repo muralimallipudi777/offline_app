@@ -1,0 +1,17 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: offline-dictionary
+
+resources:
+- namespace.yaml
+- configmap.yaml
+- secret.yaml
+- mongodb-pvc.yaml
+- mongodb-deployment.yaml
+- app-deployment.yaml
+- app-service.yaml
+
+commonLabels:
+  app: offline-dictionary
+  version: v1.0.0

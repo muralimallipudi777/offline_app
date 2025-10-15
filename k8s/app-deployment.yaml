@@ -1,0 +1,67 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: offline-dictionary-app
+  namespace: offline-dictionary
+  labels:
+    app: offline-dictionary
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: offline-dictionary
+  template:
+    metadata:
+      labels:
+        app: offline-dictionary
+    spec:
+      containers:
+      - name: offline-dictionary
+        image: murali676/kubernetes_deployment:latest
+        ports:
+        - containerPort: 8099
+        env:
+        - name: MONGODB_URI
+          valueFrom:
+            configMapKeyRef:
+              name: offline-dictionary-config
+              key: MONGODB_URI
+        - name: DATABASE_NAME
+          valueFrom:
+            configMapKeyRef:
+              name: offline-dictionary-config
+              key: DATABASE_NAME
+        - name: SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              name: offline-dictionary-secret
+              key: SECRET_KEY
+        - name: APP_TITLE
+          valueFrom:
+            configMapKeyRef:
+              name: offline-dictionary-config
+              key: APP_TITLE
+        - name: DEBUG
+          valueFrom:
+            configMapKeyRef:
+              name: offline-dictionary-config
+              key: DEBUG
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8099
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8099
+          initialDelaySeconds: 5
+          periodSeconds: 5
